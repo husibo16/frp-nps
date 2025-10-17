@@ -290,18 +290,65 @@ sudo ufw allow 6001/tcp
 sudo ufw allow 7500/tcp   # Dashboard（如启用）
 ```
 
-## 卸载/清理
+## 🧩一键彻底卸载/清理 FRP 的完整命令合集
 
 若需卸载，可执行：
 
 ```bash
-sudo systemctl disable --now frps frpc
+# 停止并禁用 frps / frpc 服务（同时取消开机自启）
+sudo systemctl disable --now frps frpc 2>/dev/null
+
+# 删除二进制文件（主程序）
 sudo rm -f /usr/local/bin/frps /usr/local/bin/frpc
+
+# 删除 systemd 服务文件
 sudo rm -f /etc/systemd/system/frps.service /etc/systemd/system/frpc.service
+
+# 删除 FRP 配置目录
 sudo rm -rf /etc/frp
+
+# 删除服务软链接（防止 systemd 残留）
+sudo rm -f /etc/systemd/system/multi-user.target.wants/frps.service
+sudo rm -f /etc/systemd/system/multi-user.target.wants/frpc.service
+
+# 删除日志文件
+sudo rm -f /var/log/frps.log /var/log/frpc.log
+
+# 清理临时安装文件（如手动解压的包）
+sudo rm -rf /tmp/frp* /root/frp* /home/*/frp*
+
+# 刷新 systemd 管理器配置并清理失败状态
 sudo systemctl daemon-reload
 sudo systemctl reset-failed
+
+# 验证清理结果（应无输出或仅有内核模块/locale 残留）
+sudo find / -name "frp*" 2>/dev/null
 ```
+🧠 可选进一步清理（非必须）
+
+如果之前设置了 dashboard 或反代，可以执行：
+```bash
+# 移除 Nginx 反代配置（如果存在）
+sudo rm -f /etc/nginx/sites-enabled/frps.conf /etc/nginx/sites-available/frps.conf
+sudo nginx -t && sudo systemctl reload nginx
+```
+✅ 验证卸载成功
+```bash
+sudo systemctl list-units --type=service | grep frp
+```
+
+应无任何输出。
+再检查：
+```bash
+sudo find / -name "frp*" 2>/dev/null
+
+# 如果只剩：
+
+/usr/lib/modules/.../frpw.ko.zst
+/usr/share/locale/frp
+```
+这两个是 Linux 内核模块和系统语言文件，与 FRP 无关，可保留
+
 > ⚠️ 卸载脚本未集成于仓库中，上述步骤需按需手动执行。
 
 
