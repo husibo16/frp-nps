@@ -30,9 +30,7 @@
 
 4. 如需自定义端口或认证信息，可在运行脚本前通过环境变量覆盖：
    ```bash
-   # 如果配置文件不存在（首次安装），则自动生成默认配置
-   if [[ ! -f "$CONFIG_FILE" ]]; then
-   #======================
+
    # 基本监听参数
    #======================
 
@@ -116,19 +114,49 @@
 3. 配置并运行脚本：
 
    ```bash
-   sudo FRPC_SERVER_ADDR=vps.example.com \
-        FRPC_TOKEN=strong_token \
-        FRPC_TUNNEL_NAME=home-web \
-        FRPC_LOCAL_PORT=80 \
-        FRPC_REMOTE_PORT=6080 \
-        ./install-frpc.sh
-   ```
+   # 服务端连接信息
+   #========================
 
-   - `FRPC_SERVER_ADDR`：填写 VPS 的公网域名或 IP。
-   - `FRPC_TOKEN`：需与 frps 端配置保持一致。
-   - `FRPC_AUTH_METHOD`：默认 `token`，若使用 OIDC 等高级认证，可在此处切换。
-   - `FRPC_LOCAL_PORT`：本地要暴露的服务端口，例如 80 或 22。
-   - `FRPC_REMOTE_PORT`：VPS 上对外暴露的端口，需要确保未被占用。
+   # FRPC_SERVER_ADDR：frps 服务端地址（公网 IP 或域名）
+   # 默认 example.com（仅占位），必须改成你 VPS 的公网地址
+   SERVER_ADDR=${FRPC_SERVER_ADDR:-example.com}
+
+   # FRPC_SERVER_PORT：frps 服务端监听端口
+   # 默认 7000（对应 frps.toml 中的 bindPort）
+   SERVER_PORT=${FRPC_SERVER_PORT:-7000}
+
+   #========================
+   # 认证信息
+   #========================
+
+   # FRPC_AUTH_METHOD：认证方式，默认为 token
+   # 当前常用方式是 token，未来版本可能支持 OIDC 等。
+   AUTH_METHOD=${FRPC_AUTH_METHOD:-token}
+
+   # FRPC_TOKEN：客户端连接口令（必须与 frps.toml 的 token 一致）
+   # 默认 changeme，建议改成强随机字符串。
+   AUTH_TOKEN=${FRPC_TOKEN:-changeme}
+
+   #========================
+   # 代理隧道设置
+   #========================
+
+   # FRPC_TUNNEL_NAME：隧道名称，用于标识该代理。
+   # 默认 "web"，可自定义多个不同名称以建立多条隧道。
+   TUNNEL_NAME=${FRPC_TUNNEL_NAME:-web}
+
+   # FRPC_LOCAL_PORT：本地服务端口（被映射的目标）
+   # 例如：Xboard 面板在本地 7001 端口，则这里填 7001。
+   LOCAL_PORT=${FRPC_LOCAL_PORT:-80}
+
+   # FRPC_REMOTE_PORT：远程服务端口（在 frps 上暴露的公网端口）
+   # 外部用户访问 VPS:REMOTE_PORT 时，会自动转发到本地 LOCAL_PORT。
+   # 默认 6000，可以根据需要修改。
+   REMOTE_PORT=${FRPC_REMOTE_PORT:-6000}
+
+   #===================================
+   # 后续脚本会基于以上变量生成 frpc.toml
+   #===================================
 
 4. 脚本会生成 `/etc/frp/frpc.toml` 并创建 `frpc.service` systemd 单元。首次运行若仍使用示例地址或默认 token，脚本会给出提示信息。
 
