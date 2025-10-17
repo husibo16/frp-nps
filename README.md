@@ -88,10 +88,18 @@
 3️⃣ 修改配置与重启服务
 
    ```bash
+# 打开 frps 配置文件（服务端配置）
 sudo nano /etc/frp/frps.toml
+
+# 让 systemd 重新加载配置文件
 sudo systemctl daemon-reload
+
+# 重启 frps 服务以使修改生效
 sudo systemctl restart frps
+
+# 查看 frps 当前运行状态
 sudo systemctl status frps
+
    ```
 🔐 建议：首次安装后务必修改默认 token 和面板密码。
 
@@ -124,9 +132,9 @@ sudo systemctl status frps
    # 认证信息
    #======================
    FRPC_AUTH_METHOD=token
-   FRPC_TOKEN='frpSecureToken@2025'
+   FRPC_TOKEN=''changeme
    # 👉 必须与服务端一致，否则无法连接。
-   # ✅ 建议统一放在 .env 文件中管理。
+   # ✅ 必改！长度≥12 且混合大小写符号。
 
    #======================
    # 代理隧道设置
@@ -146,7 +154,10 @@ sudo systemctl status frps
 
 4. 查看与验证。
    ```
+   # 查看 frpc 当前运行状态
    sudo systemctl status frpc
+   
+    实时查看 frpc 运行日志
    sudo journalctl -u frpc -f
    ```
 6. 日志示例（成功）：：
@@ -188,7 +199,9 @@ sudo systemctl daemon-reload
 sudo systemctl reset-failed
 ```
 > ⚠️ 卸载脚本未集成于仓库中，上述步骤需按需手动执行。
-🧩 五、生产环境建议汇总表
+
+
+## 🧩 五、生产环境建议汇总表
 
 | 配置项                 | 推荐值         | 说明         |
 | ------------------- | ----------- | ---------- |
