@@ -14,7 +14,7 @@
 2. 下载脚本：
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/husibo16/shell/main/bin/install-frps.sh -o install-frps.sh
+   curl -fsSL https://raw.githubusercontent.com/husibo16/frp-nps/main/bin/install-frps.sh -o install-frps.sh
    chmod +x install-frps.sh
    ```
 
@@ -56,7 +56,7 @@
 2. 下载脚本：
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/husibo16/shell/main/bin/install-frpc.sh -o install-frpc.sh
+   curl -fsSL https://raw.githubusercontent.com/husibo16/frp-nps/main/bin/install-frpc.sh -o install-frpc.sh
    chmod +x install-frpc.sh
    ```
 
