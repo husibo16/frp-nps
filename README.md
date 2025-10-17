@@ -29,7 +29,7 @@
    - 服务文件 `/etc/systemd/system/frps.service` 会自动创建，并立即启用与启动。
 
 4. 如需自定义端口或认证信息，可在运行脚本前通过环境变量覆盖：
-   ```
+   ```bash
    # 如果配置文件不存在（首次安装），则自动生成默认配置
    if [[ ! -f "$CONFIG_FILE" ]]; then
    #======================
@@ -87,8 +87,8 @@
    # Prometheus 监控
    #======================
 
-   # FRPS_ENABLE_PROMETHEUS：是否启用 /metrics 监控端点
-   # 默认为 true，设置为 false 可关闭
+    # FRPS_ENABLE_PROMETHEUS：是否启用 /metrics 监控端点
+    # 默认为 true，设置为 false 可关闭
    ENABLE_PROMETHEUS=${FRPS_ENABLE_PROMETHEUS:-true}
 
    #===================================
