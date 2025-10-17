@@ -118,39 +118,60 @@ sudo systemctl status frps
 
    ```bash
    #======================
+   # frpc 配置文件（客户端）
+   #======================
    # 服务端连接信息
-   #======================
-   FRPC_SERVER_ADDR=1.2.3.4
-   # 👉 服务端公网 IP 或域名（VPS）
-   # ✅ 生产推荐：例如 1.2.3.4 或 frp.example.com。
+   #--------------------------------
+   serverAddr = "10.168.9.22"
+   # 👉 填写 VPS 的公网 IP 或域名（运行 frps 的主机）。
+   # ✅ 生产推荐：使用域名（例如 frp.example.com）+ DDNS 或 Cloudflare 动态解析，方便 IP 变更。
+   # ❌ 不要填家里的内网地址，也不要填 127.0.0.1！
 
-   FRPC_SERVER_PORT=7000
-   # 👉 服务端监听端口，需与 frps.toml 的 bindPort 一致。
-   # ✅ 默认 7000，除非服务端改过，必须与 frps.toml 的 bindPort 一致。
+   serverPort = 7000
+   # 👉 frps 服务端监听端口，对应 /etc/frp/frps.toml 中的 bindPort。
+   # ✅ 默认 7000，可改成 6000~8999 任意空闲端口（服务端和客户端必须一致）。
 
-   #======================
-   # 认证信息
-   #======================
-   FRPC_AUTH_METHOD=token
-   FRPC_TOKEN='changeme'
-   # 👉 必须与服务端一致，否则无法连接。
-   # ✅ 必改！长度≥12 且混合大小写符号（frpSecureToken@2025）。
+   #--------------------------------
+   # 认证配置
+   #--------------------------------
+   auth.method = "token"
+   # 👉 认证方式，常见为 token（默认）。
+   # ✅ 推荐：保持 token 模式；OIDC 仅适合企业集成环境。
 
-   #======================
-   # 代理隧道设置
-   #======================
-   FRPC_TUNNEL_NAME=xboard
-   # 👉 隧道名称，用于标识（多条隧道可用不同名称）
-   # ✅ 推荐：与应用名一致，如 xboard、nginx、ssh
+   auth.token = "changeme"
+   # 👉 通信密钥（客户端与服务端必须一致）。
+   # ⚠️ 默认值 changeme 极不安全，请修改！
+   # ✅ 推荐：强随机字符串，如 frpSecureToken@2025 或生成随机 UUID。
 
-   FRPC_LOCAL_PORT=7001
-   # 👉 本地服务端口（要穿透的服务）
-   # ✅ 示例：Xboard 面板监听端口（宝塔默认 7001）
+   #--------------------------------
+   # 代理隧道配置（每个 [[proxies]] 代表一条穿透规则）
+   #--------------------------------
+   [[proxies]]
+   name = "xboard"
+   # 👉 隧道名称（自定义标识）。
+   # ✅ 推荐与应用名一致，如 “xboard”、“btpanel”、“nas”、“ssh”。
 
-   FRPC_REMOTE_PORT=9000
-   # 👉 VPS 端对外暴露的端口
-   # ✅ 推荐：9000~9999 段；避免与 bindPort 冲突。
+   type = "tcp"
+   # 👉 穿透类型：tcp / udp / http / https 等。
+   # ✅ 推荐根据目标服务类型选择：
+   #    - Web 服务（如宝塔、Xboard）：tcp
+   #    - SSH 远程管理：tcp
+   #    - 游戏/流媒体：udp
 
+   localIP = "127.0.0.1"
+   # 👉 本地目标 IP，通常为 localhost。
+   # ✅ 推荐保持 127.0.0.1（除非目标服务运行在其他局域网机器上）。
+
+   localPort = 7001
+   # 👉 本地被代理的服务端口。
+   # ✅ 示例：Xboard 面板运行在 7001 端口，则这里填 7001；
+   #    宝塔默认 8888，nginx 默认 80 或 443。
+
+   remotePort = 7001
+   # 👉 VPS 上对应的外网访问端口（即外部访问 http://VPS_IP:remotePort）。
+   # ✅ 推荐：使用 9000~9999 段（避免和服务端 bindPort 冲突）。
+   #    例如 remotePort = 9001，则访问 http://VPS_IP:9001。
+   # ⚠️ 若 VPS 上已有端口占用，需修改为其他未被占用的端口。
 
 4. 查看与验证。
    ```
