@@ -144,24 +144,35 @@ sudo systemctl status frps
    # ✅ 推荐：9000~9999 段；避免与 bindPort 冲突。
 
 
-4. 脚本会生成 `/etc/frp/frpc.toml` 并创建 `frpc.service` systemd 单元。首次运行若仍使用示例地址或默认 token，脚本会给出提示信息。
-
-5. 修改配置后，可通过以下命令重启：
+4. 查看与验证。
+   ```
+   sudo systemctl status frpc
+   sudo journalctl -u frpc -f
+   ```
+6. 日志示例（成功）：：
 
    ```bash
-   sudo systemctl restart frpc
+   [I] [client/service.go:317] login to server success
+   [I] [proxy/proxy_manager.go:177] proxy added: [xboard]
+
    ```
 
 ## 常用命令
 
 ```bash
-# 查看服务状态
+# 查看运行状态
 sudo systemctl status frps
 sudo systemctl status frpc
 
-# 查看日志
+# 实时日志（调试连接问题）
 sudo journalctl -u frps -f
 sudo journalctl -u frpc -f
+
+# 修改配置后重启
+sudo systemctl daemon-reload
+sudo systemctl restart frps
+sudo systemctl restart frpc
+
 ```
 
 ## 卸载/清理
@@ -169,13 +180,26 @@ sudo journalctl -u frpc -f
 若需卸载，可执行：
 
 ```bash
-sudo systemctl disable --now frps
-sudo rm -f /etc/systemd/system/frps.service /usr/local/bin/frps
-
-sudo systemctl disable --now frpc
-sudo rm -f /etc/systemd/system/frpc.service /usr/local/bin/frpc
-
+sudo systemctl disable --now frps frpc
+sudo rm -f /usr/local/bin/frps /usr/local/bin/frpc
+sudo rm -f /etc/systemd/system/frps.service /etc/systemd/system/frpc.service
 sudo rm -rf /etc/frp
+sudo systemctl daemon-reload
+sudo systemctl reset-failed
 ```
-
 > ⚠️ 卸载脚本未集成于仓库中，上述步骤需按需手动执行。
+🧩 五、生产环境建议汇总表
+
+| 配置项                 | 推荐值         | 说明         |
+| ------------------- | ----------- | ---------- |
+| `bindPort`          | 6000~8999   | 主连接端口，防扫描  |
+| `auth.token`        | 长度≥12 强随机   | 必改，客户端需一致  |
+| `webServer.port`    | 7500（仅内网访问） | 管理面板端口     |
+| `FRPC_REMOTE_PORT`  | 9000~9999   | VPS 对外暴露端口 |
+| `log.level`         | info        | 推荐生产等级     |
+| `enablePrometheus`  | true        | 可供监控采集     |
+| `systemctl restart` | 每次改配置后执行    | 确保生效       |
+
+
+
+
