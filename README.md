@@ -50,9 +50,9 @@
    # 👉 登录用户名
    # ✅ 生产推荐：改成自定义用户名。
 
-   FRPS_WEB_PASS='StrongFrpWeb@2025'
+   FRPS_WEB_PASS='changeme'
    # 👉 登录密码
-   # ✅ 必改！推荐复杂度高的强密码。
+   # ✅ 必改！推荐复杂度高的强密码（frpSecureToken@2025）。
 
    #======================
    # 认证配置
@@ -61,9 +61,9 @@
    # 👉 认证方式，常用 token 模式（默认）
    # ✅ 推荐保留 token，OIDC 仅企业场景使用。
 
-   FRPS_TOKEN='frpSecureToken@2025'
+   FRPS_TOKEN='changeme'
    # 👉 通信口令，客户端必须一致
-   # ✅ 必改！长度≥12 且混合大小写符号。
+   # ✅ 必改！长度≥12 且混合大小写符号（frpSecureToken@2025）。
 
    #======================
    # 日志配置
@@ -122,19 +122,19 @@ sudo systemctl status frps
    #======================
    FRPC_SERVER_ADDR=1.2.3.4
    # 👉 服务端公网 IP 或域名（VPS）
-   # ✅ 生产推荐：绑定 DDNS 域名，方便动态 IP。
+   # ✅ 生产推荐：例如 1.2.3.4 或 frp.example.com。
 
    FRPC_SERVER_PORT=7000
    # 👉 服务端监听端口，需与 frps.toml 的 bindPort 一致。
-   # ✅ 默认 7000，除非服务端改过。
+   # ✅ 默认 7000，除非服务端改过，必须与 frps.toml 的 bindPort 一致。
 
    #======================
    # 认证信息
    #======================
    FRPC_AUTH_METHOD=token
-   FRPC_TOKEN=''changeme
+   FRPC_TOKEN='changeme'
    # 👉 必须与服务端一致，否则无法连接。
-   # ✅ 必改！长度≥12 且混合大小写符号。
+   # ✅ 必改！长度≥12 且混合大小写符号（frpSecureToken@2025）。
 
    #======================
    # 代理隧道设置
