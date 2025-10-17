@@ -35,18 +35,18 @@
    #======================
 
    # FRPS_BIND_PORT：frps 主服务监听端口（客户端 frpc 连接用）
-   # 默认 7000，可通过环境变量覆盖，例如 FRPS_BIND_PORT=6000
+   # 默认 7000，可通过环境变量覆盖，例如 FRPS_BIND_PORT=6000（frpc 的 serverPort 必须与这里一致）
    BIND_PORT=${FRPS_BIND_PORT:-7000}
 
    #======================
    # Web 管理面板配置（Dashboard）
    #======================
 
-   # FRPS_WEB_ADDR：仪表盘监听地址（默认 0.0.0.0，即所有网卡）
+   # FRPS_WEB_ADDR：仪表盘监听地址（默认 0.0.0.0，即所有网卡）表示允许所有来源访问
    # 兼容旧变量 FRPS_DASHBOARD_ADDR
    WEB_ADDR=${FRPS_WEB_ADDR:-${FRPS_DASHBOARD_ADDR:-"0.0.0.0"}}
 
-   # FRPS_WEB_PORT：仪表盘端口，默认 7500
+   # FRPS_WEB_PORT：仪表盘端口，默认 7500 （在浏览器访问：http://VPS_IP:7500）
    # 兼容旧变量 FRPS_DASHBOARD_PORT
    WEB_PORT=${FRPS_WEB_PORT:-${FRPS_DASHBOARD_PORT:-7500}}
 
@@ -54,7 +54,7 @@
    # 兼容旧变量 FRPS_DASHBOARD_USER
    WEB_USER=${FRPS_WEB_USER:-${FRPS_DASHBOARD_USER:-admin}}
 
-   # FRPS_WEB_PASS：仪表盘登录密码，默认 changeme
+   #  仪表盘登录密码 FRPS_WEB_PASS：仪表盘登录密码，默认 changeme 建议修改为强密码StrongFrpWeb@2025
    # 兼容旧变量 FRPS_DASHBOARD_PASS
    WEB_PASS=${FRPS_WEB_PASS:-${FRPS_DASHBOARD_PASS:-changeme}}
 
@@ -118,11 +118,11 @@
    #========================
 
    # FRPC_SERVER_ADDR：frps 服务端地址（公网 IP 或域名）
-   # 默认 example.com（仅占位），必须改成你 VPS 的公网地址
+   # 默认 example.com（仅占位），必须改成你 VPS 的公网地址（例如 1.2.3.4 或 frp.example.com）
    SERVER_ADDR=${FRPC_SERVER_ADDR:-example.com}
 
    # FRPC_SERVER_PORT：frps 服务端监听端口
-   # 默认 7000（对应 frps.toml 中的 bindPort）
+   # 默认 7000（对应 frps.toml 中的 bindPort）必须与 frps.toml 中的 bindPort 一致
    SERVER_PORT=${FRPC_SERVER_PORT:-7000}
 
    #========================
@@ -134,7 +134,7 @@
    AUTH_METHOD=${FRPC_AUTH_METHOD:-token}
 
    # FRPC_TOKEN：客户端连接口令（必须与 frps.toml 的 token 一致）
-   # 默认 changeme，建议改成强随机字符串。
+   # 默认 changeme，建议改成强随机字符串比如frpSecureToken@2025。
    AUTH_TOKEN=${FRPC_TOKEN:-changeme}
 
    #========================
@@ -149,9 +149,9 @@
    # 例如：Xboard 面板在本地 7001 端口，则这里填 7001。
    LOCAL_PORT=${FRPC_LOCAL_PORT:-80}
 
-   # FRPC_REMOTE_PORT：远程服务端口（在 frps 上暴露的公网端口）
-   # 外部用户访问 VPS:REMOTE_PORT 时，会自动转发到本地 LOCAL_PORT。
-   # 默认 6000，可以根据需要修改。
+   # 远程服务端口（VPS 上对外开放的端口）
+   # 外部访问 http://VPS_IP:7001 时，会被 FRP 转发到上面的 localPort。
+   # 默认 6000，可以根据需要修改（自定义推荐用 9000+ 段避免冲突）。
    REMOTE_PORT=${FRPC_REMOTE_PORT:-6000}
 
    #===================================
