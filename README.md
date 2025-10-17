@@ -10,8 +10,8 @@
 
 # 🚀 一、部署 FRP 服务端（VPS）
 
-1. 登录拥有公网 IP 的 VPS。
-2. 下载并安装：
+### 1. 登录拥有公网 IP 的 VPS。
+### 2. 下载并安装：
 
    ```bash
    curl -fsSL https://raw.githubusercontent.com/husibo16/frp-nps/main/bin/install-frps.sh -o install-frps.sh
@@ -19,15 +19,16 @@
    sudo ./install-frps.sh
    ```
 
-3. 执行后：
+### 3. 执行后：
  - 安装位置：/usr/local/bin/frps
  - 默认配置：/etc/frp/frps.toml
  - 服务文件：/etc/systemd/system/frps.service
  - 自动启动并开机自启
 
-4. 如需自定义端口或认证信息，可在运行脚本前通过环境变量覆盖：
+### 4. 如需自定义端口或认证信息，可在运行脚本前通过环境变量覆盖：
  - 后续改动可直接编辑 /etc/frp/frps.toml 并重启服务。
-   ```bash
+
+```bash
    #======================
    # 基础监听端口
    #======================
@@ -82,26 +83,25 @@
    FRPS_ENABLE_PROMETHEUS=true
    # 👉 是否启用 /metrics 端点
    # ✅ 推荐：true（方便监控流量/连接）
+```
 
-   ```
+4. 修改配置与重启服务
 
-3️⃣ 修改配置与重启服务
+```bash
+   # 打开 frps 配置文件（服务端配置）
+   sudo nano /etc/frp/frps.toml
 
-   ```bash
-# 打开 frps 配置文件（服务端配置）
-sudo nano /etc/frp/frps.toml
+   # 让 systemd 重新加载配置文件
+   sudo systemctl daemon-reload
 
-# 让 systemd 重新加载配置文件
-sudo systemctl daemon-reload
+   # 重启 frps 服务以使修改生效
+   sudo systemctl restart frps
 
-# 重启 frps 服务以使修改生效
-sudo systemctl restart frps
+   # 查看 frps 当前运行状态
+   sudo systemctl status frps
 
-# 查看 frps 当前运行状态
-sudo systemctl status frps
-
-   ```
-🔐 建议：首次安装后务必修改默认 token 和面板密码。
+```
+>🔐 建议：首次安装后务必修改默认 token 和面板密码。
 
 ## 🖥️ 二、部署 FRP 客户端（家庭服务器）
 
@@ -172,9 +172,10 @@ sudo systemctl status frps
    # ✅ 推荐：使用 9000~9999 段（避免和服务端 bindPort 冲突）。
    #    例如 remotePort = 9001，则访问 http://VPS_IP:9001。
    # ⚠️ 若 VPS 上已有端口占用，需修改为其他未被占用的端口。
+   ```
 
 4. 查看与验证。
-   ```
+   ```bash
    # 查看 frpc 当前运行状态
    sudo systemctl status frpc
    
@@ -188,25 +189,21 @@ sudo systemctl status frps
    [I] [proxy/proxy_manager.go:177] proxy added: [xboard]
 
    ```
-
 ## 常用命令
+   ```bash
+   # 查看运行状态
+   sudo systemctl status frps
+   sudo systemctl status frpc
 
-```bash
-# 查看运行状态
-sudo systemctl status frps
-sudo systemctl status frpc
+   # 实时日志（调试连接问题）
+   sudo journalctl -u frps -f
+   sudo journalctl -u frpc -f
 
-# 实时日志（调试连接问题）
-sudo journalctl -u frps -f
-sudo journalctl -u frpc -f
-
-# 修改配置后重启
-sudo systemctl daemon-reload
-sudo systemctl restart frps
-sudo systemctl restart frpc
-
-```
-
+   # 修改配置后重启
+   sudo systemctl daemon-reload
+   sudo systemctl restart frps
+   sudo systemctl restart frpc
+   ```
 ## 卸载/清理
 
 若需卸载，可执行：
