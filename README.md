@@ -66,7 +66,7 @@
 
    # FRPS_AUTH_METHOD：认证方式，默认 token
    # 目前 frp 支持 token、oidc 等模式
-  AUTH_METHOD=${FRPS_AUTH_METHOD:-token}
+   AUTH_METHOD=${FRPS_AUTH_METHOD:-token}
 
    # FRPS_TOKEN：服务端认证口令，客户端必须一致
    # 默认 changeme，请务必修改！
