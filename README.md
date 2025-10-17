@@ -10,8 +10,8 @@
 
 # 🚀 一、部署 FRP 服务端（VPS）
 
-### 1. 登录拥有公网 IP 的 VPS。
-### 2. 下载并安装：
+### 1-1. 登录拥有公网 IP 的 VPS。
+### 1-2. 下载并安装：
 
    ```bash
    curl -fsSL https://raw.githubusercontent.com/husibo16/frp-nps/main/bin/install-frps.sh -o install-frps.sh
@@ -19,13 +19,13 @@
    sudo ./install-frps.sh
    ```
 
-### 3. 执行后：
+### 1-3. 执行后：
  - 安装位置：/usr/local/bin/frps
  - 默认配置：/etc/frp/frps.toml
  - 服务文件：/etc/systemd/system/frps.service
  - 自动启动并开机自启
 
-### 4. 如需自定义端口或认证信息，可在运行脚本前通过环境变量覆盖：
+### 1-4. 如需自定义端口或认证信息，可在运行脚本前通过环境变量覆盖：
  - 后续改动可直接编辑 /etc/frp/frps.toml 并重启服务。
 
 ```bash
@@ -85,7 +85,7 @@
    # ✅ 推荐：true（方便监控流量/连接）
 ```
 
-4. 修改配置与重启服务
+### 1-5. 修改配置与重启服务
 
 ```bash
    # 打开 frps 配置文件（服务端配置）
@@ -100,13 +100,16 @@
    # 查看 frps 当前运行状态
    sudo systemctl status frps
 
+   # 实时日志
+   sudo journalctl -u frps -f
+
 ```
 >🔐 建议：首次安装后务必修改默认 token 和面板密码。
 
 ## 🖥️ 二、部署 FRP 客户端（家庭服务器）
 
-1. 在需要穿透的家庭服务器上执行以下步骤。
-2. 下载并安装：
+### 2-1. 在需要穿透的家庭服务器上执行以下步骤。
+### 2-2. 下载并安装：
 
    ```bash
    curl -fsSL https://raw.githubusercontent.com/husibo16/frp-nps/main/bin/install-frpc.sh -o install-frpc.sh
@@ -114,7 +117,7 @@
    sudo ./install-frpc.sh
    ```
 
-3. 自定义配置变量：
+### 2-3. 自定义配置变量：
 
    ```bash
    #======================
@@ -174,36 +177,119 @@
    # ⚠️ 若 VPS 上已有端口占用，需修改为其他未被占用的端口。
    ```
 
-4. 查看与验证。
+### 2-4. 修改配置与重启服务。
    ```bash
-   # 查看 frpc 当前运行状态
+   # 打开 frpc 配置文件（家庭服务器配置）
+   sudo nano /etc/frp/frps.toml
+
+   # 让 systemd 重新加载配置文件
+   sudo systemctl daemon-reload
+
+   # 重启 frps 服务以使修改生效
+   sudo systemctl restart frpc
+
+   # 查看 frps 当前运行状态
    sudo systemctl status frpc
-   
-    实时查看 frpc 运行日志
+
+   # 实时日志
    sudo journalctl -u frpc -f
+
    ```
-6. 日志示例（成功）：：
+### 2-4.1. 日志示例（成功）
 
    ```bash
    [I] [client/service.go:317] login to server success
    [I] [proxy/proxy_manager.go:177] proxy added: [xboard]
 
    ```
-## 常用命令
+   
+## 🧰 三、常用命令
+
+### 3-1. 基本运维命令
+   
    ```bash
-   # 查看运行状态
-   sudo systemctl status frps
-   sudo systemctl status frpc
+# 启动服务
+sudo systemctl start frps
+sudo systemctl start frpc
 
-   # 实时日志（调试连接问题）
-   sudo journalctl -u frps -f
-   sudo journalctl -u frpc -f
+# 停止服务
+sudo systemctl stop frps
+sudo systemctl stop frpc
 
-   # 修改配置后重启
-   sudo systemctl daemon-reload
-   sudo systemctl restart frps
-   sudo systemctl restart frpc
+# 重启服务（修改配置后必须执行）
+sudo systemctl restart frps
+sudo systemctl restart frpc
+
+# 查看服务状态
+sudo systemctl status frps
+sudo systemctl status frpc
+
+# 设置开机自启
+sudo systemctl enable frps
+sudo systemctl enable frpc
+
+# 取消开机自启
+sudo systemctl disable frps
+sudo systemctl disable frpc
+
+# 重新加载 systemd 配置（修改 service 文件后）
+sudo systemctl daemon-reload
+
    ```
+### 3-2. 日志与监控
+```bash
+# 查看实时日志（推荐）
+sudo journalctl -u frps -f
+sudo journalctl -u frpc -f
+
+# 查看最近 100 行日志
+sudo journalctl -u frps -n 100
+sudo journalctl -u frpc -n 100
+
+# 查看特定日期的日志
+sudo journalctl -u frps --since "2025-10-17"
+
+# 日志文件（如配置中指定）
+sudo tail -f /var/log/frps.log
+```
+### 3-3.配置与版本
+```bash
+# 编辑配置文件
+sudo nano /etc/frp/frps.toml
+sudo nano /etc/frp/frpc.toml
+
+# 检查配置文件路径
+sudo ls -l /etc/frp/
+
+# 查看 FRP 版本
+/usr/local/bin/frps --version
+/usr/local/bin/frpc --version
+
+# 自动检查服务健康状态（可放入 crontab）
+*/5 * * * * systemctl is-active frps frpc || systemctl restart frps frpc
+```
+### 3-4.调试与网络测试
+```bash
+# 检查服务端口监听
+sudo ss -tulpn | grep frps
+sudo ss -tulpn | grep frpc
+
+# 确认 FRP 转发端口是否监听
+sudo ss -tulpn | grep 6001   # 示例：Xboard 远程端口
+
+# 测试内网目标是否可访问
+curl 127.0.0.1:7001
+
+# 测试公网访问是否成功
+curl www.jbrx16.top:6001
+
+# 检查防火墙放行情况
+sudo ufw status
+sudo ufw allow 6818/tcp
+sudo ufw allow 6001/tcp
+sudo ufw allow 7500/tcp   # Dashboard（如启用）
+```
+
 ## 卸载/清理
 
 若需卸载，可执行：
